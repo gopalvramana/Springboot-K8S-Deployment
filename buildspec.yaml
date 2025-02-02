@@ -1,6 +1,13 @@
 version: 0.2
 
 phases:
+  install:
+    runtime-versions:
+      java: corretto17  # Specify Java version
+    commands:
+      - echo Installing dependencies...
+      - mvn clean install -DskipTests  # Build JAR file
+
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
@@ -21,6 +28,8 @@ phases:
       - docker push $REPO_URI:latest
       - echo Writing image definitions file...
       - printf '[{"name":"<your-container-name>","imageUri":"%s"}]' $REPO_URI:$IMAGE_TAG > imagedefinitions.json
+
 artifacts:
   files:
     - imagedefinitions.json
+    - target/*.jar  # Ensure JAR file is available
